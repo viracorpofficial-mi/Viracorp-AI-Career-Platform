@@ -268,10 +268,10 @@ async function runCreateCv() {
     }
 
     try {
-        let res = await fetch("http://127.0.0.1:8000/api/cv/create", {
-            method: "POST",
-            body: formData
-        });
+       let res = await fetch(`${BACKEND_URL}/api/cv/create`, {
+    method: "POST",
+    body: formData
+});
         let data = await res.json();
         document.getElementById("cv-output").innerText = data.result;
     } catch (err) {
