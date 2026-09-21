@@ -89,6 +89,27 @@
         footer { background: #080b12; border-top: 1px solid var(--border-color); padding: 18px; text-align: center; font-size: 13px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto; }
         footer img { height: 20px; }
     </style>
+    <!-- Print Styles -->
+    <style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #cv-output, #cv-output * {
+            visibility: visible;
+        }
+        #cv-output {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+            background: white;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    }
+    </style>
 </head>
 <body>
 
@@ -167,132 +188,59 @@
                     <button class="btn-primary" style="width:100%" onclick="runImproveCv()" id="btn-improve-cv">Improve My CV</button>
                 </div>
 
-   <!-- 1. CSS PRINT STYLES (Isay <head> ke andar ya script ke ooper rakh lo) -->
-<style>
-@media print {
-    body * {
-        visibility: hidden; /* Baqi poora page chhupa do */
-    }
-    #cv-output, #cv-output * {
-        visibility: visible; /* Sirf CV output show ho */
-    }
-    #cv-output {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 20px;
-        background: white;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-}
-</style>
+                <!-- CREATE CV CARD -->
+                <div class="func-card" style="grid-column: span 2;">
+                    <h3 id="lbl-create-cv">Create Professional ATS CV</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 3px;">Select CV Template Style:</label>
+                            <select id="cv-template-style">
+                                <option value="Modern ATS">Modern ATS (Clean & Professional)</option>
+                                <option value="Executive">Executive (Leadership Focused)</option>
+                                <option value="Minimalist">Minimalist (Simple & Elegant)</option>
+                                <option value="Creative">Creative / Tech (Dynamic Layout)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 3px;">Upload Reference CV / Image (Optional):</label>
+                            <input type="file" id="cv-file-upload" accept=".pdf,.docx,.png,.jpg,.jpeg" style="padding: 5px;">
+                        </div>
+                    </div>
 
-<!-- 2. CREATE CV CARD & OUTPUT CARD (HTML) -->
-<div class="func-card" style="grid-column: span 2;">
-    <h3 id="lbl-create-cv">Create Professional ATS CV</h3>
-    
-    <!-- Template Style & File Upload Row -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-        <div>
-            <label style="font-size: 13px; color: #555; display: block; margin-bottom: 3px;">Select CV Template Style:</label>
-            <select id="cv-template-style" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-                <option value="Modern ATS">Modern ATS (Clean & Professional)</option>
-                <option value="Executive">Executive (Leadership Focused)</option>
-                <option value="Minimalist">Minimalist (Simple & Elegant)</option>
-                <option value="Creative">Creative / Tech (Dynamic Layout)</option>
-            </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="text" id="cv-name" placeholder="Full Name (e.g. Muhammad Ali)" required>
+                        <input type="text" id="cv-father" placeholder="Father Name (e.g. Ahmed Khan)">
+                        <input type="email" id="cv-email" placeholder="Email (e.g. ali@gmail.com)" required>
+                        <input type="text" id="cv-phone" placeholder="Phone Number (e.g. +92 300 1234567)" required>
+                        <input type="text" id="cv-address" placeholder="Address / Location (e.g. Multan, Pakistan)">
+                        <input type="text" id="cv-role" placeholder="Target Role (e.g. Python Developer)" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+                        <textarea id="cv-skills" rows="2" placeholder="Skills (Comma separated: Python, FastAPI, Git)"></textarea>
+                        <textarea id="cv-languages" rows="2" placeholder="Languages Known (e.g. English, Urdu)"></textarea>
+                        <textarea id="cv-education" rows="2" placeholder="Education (One per line: BS CS - NFC IET)"></textarea>
+                        <textarea id="cv-experience" rows="2" placeholder="Work Experience (One per line: Junior Dev at XYZ)"></textarea>
+                        <textarea id="cv-projects" rows="2" placeholder="Projects (One per line: VIRACORP Engine)"></textarea>
+                        <textarea id="cv-certifications" rows="2" placeholder="Certifications (One per line: Python - Coursera)"></textarea>
+                    </div>
+                    
+                    <textarea id="cv-summary" rows="2" placeholder="Professional Summary (Optional - leave blank for AI generation)" style="margin-top: 10px;"></textarea>
+                    
+                    <button class="btn-primary" style="width:100%; margin-top: 5px;" onclick="runCreateCv()" id="btn-create-cv">Create & Generate ATS CV 🚀</button>
+                </div>
+            </div>
+
+            <div class="chat-card" style="margin-top:20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 id="lbl-cv-out-title" style="margin: 0;">CV Hub Output</h3>
+                    <button onclick="downloadCvPdf()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">Download as PDF 📄</button>
+                </div>
+                <div id="cv-output" class="formatted-output" style="margin-top: 10px;">Results will appear here...</div>
+            </div>
         </div>
-        <div>
-            <label style="font-size: 13px; color: #555; display: block; margin-bottom: 3px;">Upload Reference CV / Image (Optional):</label>
-            <input type="file" id="cv-file-upload" accept=".pdf,.docx,.png,.jpg,.jpeg" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 5px; background: #fff;">
-        </div>
-    </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <input type="text" id="cv-name" placeholder="Full Name (e.g. Muhammad Ali)" required>
-        <input type="text" id="cv-father" placeholder="Father Name (e.g. Ahmed Khan)">
-        <input type="email" id="cv-email" placeholder="Email (e.g. ali@gmail.com)" required>
-        <input type="text" id="cv-phone" placeholder="Phone Number (e.g. +92 300 1234567)" required>
-        <input type="text" id="cv-address" placeholder="Address / Location (e.g. Multan, Pakistan)">
-        <input type="text" id="cv-role" placeholder="Target Role (e.g. Python Developer)" required>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
-        <textarea id="cv-skills" rows="2" placeholder="Skills (Comma separated: Python, FastAPI, Git)"></textarea>
-        <textarea id="cv-languages" rows="2" placeholder="Languages Known (e.g. English, Urdu)"></textarea>
-        <textarea id="cv-education" rows="2" placeholder="Education (One per line: BS CS - NFC IET)"></textarea>
-        <textarea id="cv-experience" rows="2" placeholder="Work Experience (One per line: Junior Dev at XYZ)"></textarea>
-        <textarea id="cv-projects" rows="2" placeholder="Projects (One per line: VIRACORP Engine)"></textarea>
-        <textarea id="cv-certifications" rows="2" placeholder="Certifications (One per line: Python - Coursera)"></textarea>
-    </div>
-    
-    <textarea id="cv-summary" rows="2" placeholder="Professional Summary (Optional - leave blank for AI generation)" style="margin-top: 10px;"></textarea>
-    
-    <button class="btn-primary" style="width:100%; margin-top: 5px;" onclick="runCreateCv()" id="btn-create-cv">Create & Generate ATS CV 🚀</button>
-</div>
-
-<div class="chat-card" style="margin-top:20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 id="lbl-cv-out-title" style="margin: 0;">CV Hub Output</h3>
-        <!-- Clean Print/PDF Button -->
-        <button onclick="downloadCvPdf()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">Download as PDF 📄</button>
-    </div>
-    <div id="cv-output" class="formatted-output" style="margin-top: 10px;">Results will appear here...</div>
-</div>
-
-<!-- 3. JAVASCRIPT LOGIC (Script Tag) -->
-<script>
-async function runCreateCv() {
-    const formData = new FormData();
-    formData.append("full_name", document.getElementById("cv-name").value);
-    formData.append("father_name", document.getElementById("cv-father").value);
-    formData.append("email", document.getElementById("cv-email").value);
-    formData.append("phone", document.getElementById("cv-phone").value);
-    formData.append("address", document.getElementById("cv-address").value);
-    formData.append("target_role", document.getElementById("cv-role").value);
-    formData.append("summary", document.getElementById("cv-summary").value);
-    formData.append("template_style", document.getElementById("cv-template-style").value);
-    
-    formData.append("skills", document.getElementById("cv-skills").value);
-    formData.append("languages_known", document.getElementById("cv-languages").value);
-    formData.append("education", document.getElementById("cv-education").value);
-    formData.append("work_experience", document.getElementById("cv-experience").value);
-    formData.append("projects", document.getElementById("cv-projects").value);
-    formData.append("certifications", document.getElementById("cv-certifications").value);
-
-    const fileInput = document.getElementById("cv-file-upload");
-    if (fileInput.files[0]) {
-        formData.append("file", fileInput.files[0]);
-    }
-
-    try {
-       let res = await fetch(`${BACKEND_URL}/api/cv/create`, {
-    method: "POST",
-    body: formData
-});
-        let data = await res.json();
-        document.getElementById("cv-output").innerText = data.result;
-    } catch (err) {
-        document.getElementById("cv-output").innerText = "Error connecting to VIRACORP Engine: " + err;
-    }
-}
-
-function downloadCvPdf() {
-    const cvContent = document.getElementById("cv-output").innerText;
-    
-    if (!cvContent || cvContent.includes("Results will appear here")) {
-        alert("Phele please apni CV generate karein!");
-        return;
-    }
-
-    // Triggers browser print dialog using the @media print CSS rules above
-    window.print();
-}
-</script>
-</div>
-</div>
         <!-- INTERVIEW HUB VIEW -->
         <div id="interview-view" class="view-section">
             <h2 id="lbl-int-mod-title" style="margin-bottom: 15px;">Interview Hub Module</h2>
@@ -300,82 +248,51 @@ function downloadCvPdf() {
             <div class="chat-card" style="padding: 15px;">
                 <label id="lbl-select-cat" style="display:block; margin-bottom:6px; font-weight:600;">Select Job Category / Industry (All Fields Included):</label>
                 <select id="job-category">
-                    <!-- A -->
-    <option value="Accounting & Auditing">Accounting & Auditing</option>
-    <option value="Agriculture & Farming">Agriculture & Farming</option>
-    <option value="Architecture & Interior Design">Architecture & Interior Design</option>
-    <option value="Arts & Creative Media">Arts & Creative Media</option>
-    <option value="Automotive & Mechanics">Automotive & Mechanics</option>
-
-    <!-- B -->
-    <option value="Banking & Financial Services">Banking & Financial Services</option>
-    <option value="Biotechnology & Science">Biotechnology & Science</option>
-    <option value="Business Development">Business Development & Sales</option>
-
-    <!-- C -->
-    <option value="Chemical & Petroleum">Chemical & Petroleum Engineering</option>
-    <option value="Civil Construction & Real Estate">Civil Construction & Real Estate</option>
-    <option value="Content Writing & Copywriting">Content Writing & Copywriting</option>
-    <option value="Customer Support & BPO">Customer Support / BPO / Call Center</option>
-    <option value="Cyber Security & Networking">Cyber Security & Cloud Computing</option>
-
-    <!-- D -->
-    <option value="Data Science & Analytics">Data Science & Big Data Analytics</option>
-    <option value="Digital Marketing & Social Media">Digital Marketing & Social Media</option>
-
-    <!-- E -->
-    <option value="Education & Teaching">Education & Academic Teaching</option>
-    <option value="Electrical Engineering">Electrical Engineering</option>
-    <option value="Environmental & Health Safety">Environmental, Health & Safety (HSE)</option>
-    <option value="Events Management">Events Management & Planning</option>
-
-    <!-- F -->
-    <option value="Fashion & Apparel Design">Fashion, Modeling & Apparel</option>
-    <option value="Food & Beverage / Hospitality">Food, Beverage & Hospitality</option>
-
-    <!-- G -->
-    <option value="Government & Public Sector">Government & Public Sector</option>
-    <option value="Graphic Design & UI/UX">Graphic Design & UI/UX Design</option>
-
-    <!-- H -->
-    <option value="Healthcare & Nursing">Medical, Healthcare & Nursing</option>
-    <option value="Human Resources (HR)">Human Resources (HR) & Recruitment</option>
-
-    <!-- I -->
-    <option value="Information Technology (IT)">Information Technology (IT) Support</option>
-    <option value="Insurance & Risk Management">Insurance & Risk Management</option>
-    <option value="International Relations & NGO">International Relations & NGO</option>
-
-    <!-- J -->
-    <option value="Journalism & Broadcasting">Journalism, Media & Broadcasting</option>
-
-    <!-- L -->
-    <option value="Law & Legal Services">Law & Legal Services</option>
-    <option value="Logistics & Supply Chain">Logistics, Supply Chain & Procurement</option>
-
-    <!-- M -->
-    <option value="Manufacturing & Production">Manufacturing & Production</option>
-    <option value="Mechanical Engineering">Mechanical Engineering</option>
-    <option value="Mobile App Development">Mobile App Development (iOS/Android)</option>
-
-    <!-- P -->
-    <option value="Pharmaceuticals">Pharmaceuticals & Medical Sales</option>
-    <option value="Photography & Videography">Photography & Videography</option>
-    <option value="Public Relations (PR)">Public Relations (PR) & Communications</option>
-
-    <!-- R -->
-    <option value="Research & Development">Research & Development (R&D)</option>
-    <option value="Retail & E-commerce">Retail, Wholesale & E-commerce</option>
-
-    <!-- S -->
-    <option value="Sales & Corporate BD">Sales & Corporate BD</option>
-    <option value="Software Engineering & Web Dev">Software Engineering / IT / Web Dev</option>
-    <option value="Sports & Fitness">Sports, Fitness & Training</option>
-
-    <!-- T -->
-    <option value="Telecommunications">Telecommunications</option>
-    <option value="Travel, Tourism & Aviation">Travel, Tourism & Aviation</option>
-    <option value="Translation & Languages">Translation, Languages & Localization</option>
+                    <option value="Accounting & Auditing">Accounting & Auditing</option>
+                    <option value="Agriculture & Farming">Agriculture & Farming</option>
+                    <option value="Architecture & Interior Design">Architecture & Interior Design</option>
+                    <option value="Arts & Creative Media">Arts & Creative Media</option>
+                    <option value="Automotive & Mechanics">Automotive & Mechanics</option>
+                    <option value="Banking & Financial Services">Banking & Financial Services</option>
+                    <option value="Biotechnology & Science">Biotechnology & Science</option>
+                    <option value="Business Development">Business Development & Sales</option>
+                    <option value="Chemical & Petroleum">Chemical & Petroleum Engineering</option>
+                    <option value="Civil Construction & Real Estate">Civil Construction & Real Estate</option>
+                    <option value="Content Writing & Copywriting">Content Writing & Copywriting</option>
+                    <option value="Customer Support & BPO">Customer Support / BPO / Call Center</option>
+                    <option value="Cyber Security & Networking">Cyber Security & Cloud Computing</option>
+                    <option value="Data Science & Analytics">Data Science & Big Data Analytics</option>
+                    <option value="Digital Marketing & Social Media">Digital Marketing & Social Media</option>
+                    <option value="Education & Teaching">Education & Academic Teaching</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Environmental & Health Safety">Environmental, Health & Safety (HSE)</option>
+                    <option value="Events Management">Events Management & Planning</option>
+                    <option value="Fashion & Apparel Design">Fashion, Modeling & Apparel</option>
+                    <option value="Food & Beverage / Hospitality">Food, Beverage & Hospitality</option>
+                    <option value="Government & Public Sector">Government & Public Sector</option>
+                    <option value="Graphic Design & UI/UX">Graphic Design & UI/UX Design</option>
+                    <option value="Healthcare & Nursing">Medical, Healthcare & Nursing</option>
+                    <option value="Human Resources (HR)">Human Resources (HR) & Recruitment</option>
+                    <option value="Information Technology (IT)">Information Technology (IT) Support</option>
+                    <option value="Insurance & Risk Management">Insurance & Risk Management</option>
+                    <option value="International Relations & NGO">International Relations & NGO</option>
+                    <option value="Journalism & Broadcasting">Journalism, Media & Broadcasting</option>
+                    <option value="Law & Legal Services">Law & Legal Services</option>
+                    <option value="Logistics & Supply Chain">Logistics, Supply Chain & Procurement</option>
+                    <option value="Manufacturing & Production">Manufacturing & Production</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Mobile App Development">Mobile App Development (iOS/Android)</option>
+                    <option value="Pharmaceuticals">Pharmaceuticals & Medical Sales</option>
+                    <option value="Photography & Videography">Photography & Videography</option>
+                    <option value="Public Relations (PR)">Public Relations (PR) & Communications</option>
+                    <option value="Research & Development">Research & Development (R&D)</option>
+                    <option value="Retail & E-commerce">Retail, Wholesale & E-commerce</option>
+                    <option value="Sales & Corporate BD">Sales & Corporate BD</option>
+                    <option value="Software Engineering & Web Dev">Software Engineering / IT / Web Dev</option>
+                    <option value="Sports & Fitness">Sports, Fitness & Training</option>
+                    <option value="Telecommunications">Telecommunications</option>
+                    <option value="Travel, Tourism & Aviation">Travel, Tourism & Aviation</option>
+                    <option value="Translation & Languages">Translation, Languages & Localization</option>
                 </select>
             </div>
 
@@ -421,7 +338,19 @@ function downloadCvPdf() {
 
     <!-- Script -->
     <script>
-        const BACKEND_URL = "http://127.0.0.1:8000";
+        // 1. Automatic Backend URL Detection (Local & Railway Live Support)
+        const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://127.0.0.1:8000' 
+            : '';
+
+        // 2. Fetch Override mechanism to handle relative/absolute path issues seamlessly
+        const originalFetch = window.fetch;
+        window.fetch = async function(url, options) {
+            if (typeof url === 'string' && url.startsWith('/')) {
+                url = BACKEND_URL + url;
+            }
+            return originalFetch(url, options);
+        };
 
         let currentQuestions = [];
         let currentQIndex = 0;
@@ -686,6 +615,15 @@ function downloadCvPdf() {
                 clearInterval(timer);
                 output.innerText = "Backend connection failed.";
             }
+        }
+
+        function downloadCvPdf() {
+            const cvContent = document.getElementById("cv-output").innerText;
+            if (!cvContent || cvContent.includes("Results will appear here")) {
+                alert("Phele please apni CV generate karein!");
+                return;
+            }
+            window.print();
         }
 
         async function startInterviewTest() {
