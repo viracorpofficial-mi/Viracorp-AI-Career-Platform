@@ -5,6 +5,7 @@ import random
 import itertools
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Request  
+from fastapi.responses import HTMLResponse # <--- Yeh line add karni hai
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -30,7 +31,6 @@ app.add_middleware(
 GROQ_MODEL = "openai/gpt-oss-20b"
 
 # --- MULTI-KEY ROTATION & FAILOVER SYSTEM ---
-# Yeh .env se saari keys utha kar aik list bana lega (Chahe jitni marzi keys rakho)
 API_KEYS = [
     os.getenv("GROQ_API_KEY"),
     os.getenv("GROQ_API_KEY_1"),
@@ -38,17 +38,14 @@ API_KEYS = [
     os.getenv("GROQ_API_KEY_3"),
     os.getenv("GROQ_API_KEY_4")
 ]
-# Sirf woh keys rakhega jo mojood (not None/empty) hain
 API_KEYS = [k for k in API_KEYS if k and k.strip()]
 
 if not API_KEYS:
     print("[VIRACORP Warning]: No Groq API keys found in .env file!")
 
-# Keys ko gol gol ghumane ke liye iterator
 key_cycle = itertools.cycle(API_KEYS) if API_KEYS else None
 
 def get_next_groq_client():
-    """Har request par agli key uthaye ga, agar aik ki limit cross ho tou agli par switch ho jaye ga."""
     if not key_cycle:
         return Groq(api_key="")
     current_key = next(key_cycle)
@@ -56,13 +53,9 @@ def get_next_groq_client():
 
 
 def query_groq_api(prompt: str, language: str = "Auto") -> str:
-    """
-    Queries Groq API with multi-key automatic failover & multi-language force.
-    """
     if not API_KEYS:
         return "Backend Error: No GROQ_API_KEY is found in your .env file."
 
-    # Multilingual Enforcement Logic
     if language == "Auto" or not language:
         lang_instruction = (
             "CRITICAL LANGUAGE RULE: Detect the language of the user's prompt below. "
@@ -84,7 +77,6 @@ def query_groq_api(prompt: str, language: str = "Auto") -> str:
     
     full_user_content = f"{prompt}\n\n[Reminder: You must reply in the exact same language as the prompt above.]"
 
-    # Multi-key automatic failover loop
     attempts = len(API_KEYS)
     for _ in range(attempts):
         try:
@@ -105,7 +97,7 @@ def query_groq_api(prompt: str, language: str = "Auto") -> str:
         except Exception as err:
             err_str = str(err)
             print(f"[VIRACORP Key Switch Notice]: Key failed or limit reached ({err_str}). Trying next key...")
-            continue # Agli key par chale jao
+            continue 
 
     return "VIRACORP Engine Notice: All API keys exhausted or system busy. Please try again later."
     
@@ -137,23 +129,6 @@ class ChatReq(BaseModel):
 
 class CvTestReq(BaseModel):
     resume_text: str
-    language: Optional[str] = "Auto"
-
-class CvCreateReq(BaseModel):
-    full_name: str
-    father_name: Optional[str] = ""
-    email: str
-    phone: str
-    address: Optional[str] = ""
-    target_role: str
-    summary: Optional[str] = ""
-    education: List[str]
-    work_experience: List[str]
-    skills: List[str]
-    projects: Optional[List[str]] = []
-    certifications: Optional[List[str]] = []
-    languages_known: Optional[List[str]] = ["English", "Urdu"]
-    additional_notes: Optional[str] = ""
     language: Optional[str] = "Auto"
 
 class IntQuestionsReq(BaseModel):
@@ -193,13 +168,21 @@ STATUS_STEPS = {
 
 # --- API ENDPOINTS ---
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def health():
-    return {
-        "status": "VIRACORP Engine 9.3.0 Active (Groq Powered, Multi-Language & Dynamic)",
-        "multilingual_chat": "Enabled",
-        "transmission_loaders": "Active"
-    }
+    # Yeh aapki index.html file ko parh kar browser par direct render kar dega
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    return """
+    <html>
+        <head><title>VIRACORP Engine</title></head>
+        <body style="font-family: Arial; text-align: center; padding-top: 50px;">
+            <h2>VIRACORP Engine 9.3.0 Active</h2>
+            <p>API is running smoothly, but index.html was not found in root directory.</p>
+        </body>
+    </html>
+    """
 
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatReq):
