@@ -5,7 +5,7 @@ import random
 import itertools
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Request  
-from fastapi.responses import HTMLResponse # <--- Yeh line add karni hai
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -170,7 +170,6 @@ STATUS_STEPS = {
 
 @app.get("/", response_class=HTMLResponse)
 def health():
-    # Yeh aapki index.html file ko parh kar browser par direct render kar dega
     if os.path.exists("index.html"):
         with open("index.html", "r", encoding="utf-8") as f:
             return f.read()
@@ -183,6 +182,12 @@ def health():
         </body>
     </html>
     """
+
+@app.get("/logo.png")
+def get_logo():
+    if os.path.exists("logo.png"):
+        return FileResponse("logo.png")
+    return {"error": "logo not found"}
 
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatReq):
